@@ -1,14 +1,37 @@
 $(function() {
 	"use strict";
 
-	$('#content').artEditor({
+    var headers = {};
+
+    //add token and username in headers
+    if(window.HaloSports_UserName) headers.username = window.HaloSports_UserName;
+    else{
+        var userName = window.localStorage.getItem('HaloSports_UserName');
+        if(userName){
+            window.HaloSports_UserName = userName;
+            headers.username = window.HaloSports_UserName;
+        }
+    }
+    if(window.HaloSports_AccessToken) headers.token = window.HaloSports_AccessToken;
+    else{
+        var token = window.localStorage.getItem('HaloSports_AccessToken');
+        if(token){
+            window.HaloSports_AccessToken = token;
+            headers.token = window.HaloSports_AccessToken;
+        }
+    }
+
+	$('#content').haloMobileEditor({
 		imgTar: '#imageUpload',
-		limitSize: 5,   // 兆
-		showServer: false,
-		uploadUrl: '',
-		data: {},
+        hook: '#text_content',
+		limitSize: 3,   // 兆
+		showServer: true,
+		uploadUrl: 'http://www.ipaoto.com/uploadimg',
+        contentType: 'application/json',
+        headers: headers,
+		data: headers,
 		uploadField: 'image',
-		placeholader: '<p>请输入文章正文内容</p>',
+		placeholder: '<p>请输入活动内容</p>',
 		validHtml: ["br"],
 		uploadSuccess: function(res) {
 			// return img url
@@ -19,4 +42,16 @@ $(function() {
 			console.log(res);
 		}
 	});
+
+	$('i[action]').bind('click', function(){
+		$('#content').haloMobileEditorAction(this.getAttribute('action'));
+	});
+	$('select[action]').bind('change', function(){
+		$('#content').haloMobileEditorAction(this.getAttribute('action'), this.value);
+	});
+    $('select[action]').bind('click', function(){
+        $('#content').haloMobileEditorAction(this.getAttribute('action'), this.value);
+    });
+	
+	
 });

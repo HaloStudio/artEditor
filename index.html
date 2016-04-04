@@ -8,7 +8,9 @@
 	<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width, minimal-ui">
 	<!-- iphone设备中的safari私有meta标签，它表示：允许全屏模式浏览 -->
 	<meta name="apple-mobile-web-app-capable" content="yes">
-	<link rel="stylesheet" href="example/css/style.css">
+	<!--<link href="http://cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">-->
+	<link href="example/css/font-awesome.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="example/css/style.css">
 </head>
 <body>
 	<div style="width:320px;margin: 0 auto;">
@@ -22,14 +24,38 @@
 			</div>
 			<div class="footer-btn g-image-upload-box">
 				<div class="upload-button">
-					<span class="upload"><i class="upload-img"></i>插入图片</span>
-					<input class="input-file" id="imageUpload" type="file" name="fileInput" capture="camera" accept="image/*" style="position:absolute;left:0;opacity:0;width:100%;">
+                    <i action="image" style="margin-right:5px;" class="fa fa-file-image-o"></i>
+                    <i action="bold" style="margin-right:5px;" class="fa fa-bold"></i>
+                    <i action="underline" style="margin-right:5px;" class="fa fa-underline"></i>
+                    <i action="italic" style="margin-right:5px;" class="fa fa-italic"></i>
+                    <select action="fontSize" style="margin-right:5px;">
+                        <option value="">字号</option>
+                        <option value="0.85em">0.85倍</option>
+                        <option value="1.1em">1.1倍</option>
+                        <option value="1.25em">1.25倍</option>
+                        <option value="1.5em">1.5倍</option>
+                        <option value="2em">2倍</option>
+                    </select>
+                    <select action="color">
+                        <option value="">颜色</option>
+                        <option value="red">红</option>
+                        <option value="blue">蓝</option>
+                        <option value="green">绿</option>
+                        <option value="purple">紫</option>
+                        <option value="yellow">黄</option>
+                        <option value="gray">灰</option>
+                    </select>
+					<input class="input-file" id="imageUpload" type="file" name="fileInput" capture="camera" accept="image/*" style="position:absolute;left:-1000px;opacity:0;width:100px;">
 				</div>
 			</div>
 		</div>
+        <div class="publish-article-content">
+            <h3>代码预览</h3>
+            <textarea id="text_content" style="border:1px dashed blue;"></textarea>
+        </div>
 	</div>
-	<script src="example/js/jquery-1.11.2.js"></script>
-	<script src="artEditor.min.js"></script>
+	<script src="example/js/jquery.min.js"></script>
+	<script src="haloMobileEditor.js"></script>
 	<script src="example/js/index.js"></script>
 </body>
 </html>
