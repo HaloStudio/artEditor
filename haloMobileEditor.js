@@ -1,151 +1,157 @@
 /**
  * 移动端富文本编辑器
  * @author xjfhnsd@163.com
- * @url    https://github.com/baixuexiyang/artEditor
+ * @url   https://github.com/HaloStudio/artEditor
  */
 $.fn.extend({
-	_opt: {
-		placeholder: '<p>请输入内容</p>',
-		validHtml: [],
-		limitSize: 3,
-		showServer: false
-	},
+    _opt: {
+        placeholder: '<p>请输入内容</p>',
+        validHtml: [],
+        limitSize: 3,
+        showServer: false
+    },
     haloMobileEditor: function(options) {
-		var _this = this,
-			styles = {
-				"-webkit-user-select": "text",
-				"user-select": "text",
-				"overflow-y": "auto",
-				"text-break": "break-all",
-				"outline": "none"
-			};
-		$(this).css(styles).attr("contenteditable", true);
-		_this._opt = $.extend(_this._opt, options);
-		try{
-			$(_this._opt.imgTar).on('change', function(e) {
-				var file  = e.target.files[0];
-				if(Math.ceil(file.size/1024/1024) > _this._opt.limitSize) {
-					console.error('文件太大');
-					return;
-				}
+        var _this = this,
+            styles = {
+                "-webkit-user-select": "auto",
+                "user-select": "auto",
+                "overflow-y": "auto",
+                "text-break": "break-all",
+                "outline": "none"
+            };
+        $(this).css(styles).attr("contenteditable", true);
+        _this._opt = $.extend(_this._opt, options);
+        try{
+            $(_this._opt.imgTar).on('change', function(e) {
+                var file  = e.target.files[0];
+                if(Math.ceil(file.size/1024/1024) > _this._opt.limitSize) {
+                    console.error('文件太大');
+                    return;
+                }
                 var reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = function (f) {
-                	if(_this._opt.showServer) {
-                		_this.upload(f.target.result);
-                		return ;
-                	}
-            		var img = '<img src="'+ f.target.result +'" style="width:90%;" />';
-            	    _this.insertImage(img);
+                    if(_this._opt.showServer) {
+                        _this.upload(f.target.result);
+                        return ;
+                    }
+                    var img = '<img src="'+ f.target.result +'" style="width:90%;" />';
+                    _this.insertImage(img);
                 };
-			});
-			_this.placeholderHandler();
-			_this.pasteHandler();
-		} catch(e) {
-			console.log(e);
-		}
-	},
-	upload: function(data) {
-		var _this = this, filed = _this._opt.uploadField;
-        var postData = $.extend(_this._opt.data, {filed: data});
+            });
+            _this.placeholderHandler();
+            _this.pasteHandler();
+        } catch(e) {
+            console.log(e);
+        }
+    },
+    upload: function(data) {
+        var _this = this, field = _this._opt.uploadField;
+        var postData = $.extend(_this._opt.data, {field: data});
         console.log(_this._opt.contentType, _this._opt.headers, postData);
-		$.ajax({
-			url: _this._opt.uploadUrl,
-			type: 'post',
-            contentType: _this._opt.contentType || 'application/x-www-form-urlencoded',
-            headers: _this._opt.headers || {},
-			data: _this._opt.contentType === 'application/json'?JSON.stringify(postData):postData,
-			cache: false
-		})
-		.then(function(res) {
-			var src = _this._opt.uploadSuccess(res);
-			if(src) {
-				var img = '<img src="'+ src +'" style="width:90%;" />';
-			    _this.insertImage(img);
-			} else {
-				_this._opt.uploadError(res);
-			}
-		});
-	},
-	insertImage: function(src) {
-	    $(this).focus();
-		var selection = window.getSelection ? window.getSelection() : document.selection;
-		var range = selection.createRange ? selection.createRange() : selection.getRangeAt(0);
-		if (!window.getSelection) {
-		    range.pasteHTML(src);
-		    range.collapse(false);
-		    range.select();
-		} else {
-		    range.collapse(false);
-		    var hasR = range.createContextualFragment(src);
-		    var hasLastChild = hasR.lastChild;
-		    while (hasLastChild && hasLastChild.nodeName.toLowerCase() == "br" && hasLastChild.previousSibling && hasLastChild.previousSibling.nodeName.toLowerCase() == "br") {
-		        var e = hasLastChild;
-		        hasLastChild = hasLastChild.previousSibling;
-		        hasR.removeChild(e);
-		    }
-		    range.insertNode(range.createContextualFragment("<br/>"));
-		    range.insertNode(hasR);
-		    if (hasLastChild) {
-		        range.setEndAfter(hasLastChild);
-		        range.setStartAfter(hasLastChild);
-		    }
-		    selection.removeAllRanges();
-		    selection.addRange(range);
-		}
-	},
-	pasteHandler: function() {
-		var _this = this;
-		$(this).on("paste", function() {
-			/*var content = $(this).html();
-			valiHTML = _this._opt.validHtml;
-			content = content.replace(/_moz_dirty=""/gi, "").replace(/\[/g, "[[-").replace(/\]/g, "-]]").replace(/<\/ ?tr[^>]*>/gi, "[br]").replace(/<\/ ?td[^>]*>/gi, "&nbsp;&nbsp;").replace(/<(ul|dl|ol)[^>]*>/gi, "[br]").replace(/<(li|dd)[^>]*>/gi, "[br]").replace(/<p [^>]*>/gi, "[br]").replace(new RegExp("<(/?(?:" + valiHTML.join("|") + ")[^>]*)>", "gi"), "[$1]").replace(new RegExp('<span([^>]*class="?at"?[^>]*)>', "gi"), "[span$1]").replace(/<[^>]*>/g, "").replace(/\[\[\-/g, "[").replace(/\-\]\]/g, "]").replace(new RegExp("\\[(/?(?:" + valiHTML.join("|") + "|img|span)[^\\]]*)\\]", "gi"), "<$1>");
-			if (!/firefox/.test(navigator.userAgent.toLowerCase())) {
-			    content = content.replace(/\r?\n/gi, "<br>");
-			}
-			$(this).html(content);*/
-		});
-	},
-	placeholderHandler: function() {
-		var _this = this;
-		$(this).on('focus', function() {
-            window.haloEditorSelection = null;
-            _this.startBuffer.apply(_this,[]);
-			if($.trim($(this).html()) === _this._opt.placeholder) {
-				$(this).html('');
-			}
-		})
-		.on('blur', function() {
-            _this.stopBuffer.apply(_this,[]);
-			if(!$(this).html()) {
-				$(this).html(_this._opt.placeholder);
-
-                if(_this._opt.hook){
-                    $(_this._opt.hook).val('');
+        $.ajax({
+                url: _this._opt.uploadUrl,
+                type: 'post',
+                contentType: _this._opt.contentType || 'application/x-www-form-urlencoded',
+                headers: _this._opt.headers || {},
+                data: _this._opt.contentType === 'application/json'?JSON.stringify(postData):postData,
+                cache: false
+            })
+            .then(function(res) {
+                var src = _this._opt.uploadSuccess(res);
+                if(src) {
+                    var img = '<img src="'+ src +'" style="width:90%;" />';
+                    _this.insertImage(img);
+                } else {
+                    _this._opt.uploadError(res);
                 }
-			}
-            else{
-                if(_this._opt.hook){
-                    $(_this._opt.hook).val($(this).html());
-                }
+            });
+    },
+    insertImage: function(src) {
+        $(this).focus();
+        var selection = window.getSelection ? window.getSelection() : document.selection;
+        var range = selection.createRange ? selection.createRange() : selection.getRangeAt(0);
+        if (!window.getSelection) {
+            range.pasteHTML(src);
+            range.collapse(false);
+            range.select();
+        } else if(selection) {
+            range.collapse(false);
+            var hasR = range.createContextualFragment(src);
+            var hasLastChild = hasR.lastChild;
+            while (hasLastChild && hasLastChild.nodeName.toLowerCase() == "br" && hasLastChild.previousSibling && hasLastChild.previousSibling.nodeName.toLowerCase() == "br") {
+                var e = hasLastChild;
+                hasLastChild = hasLastChild.previousSibling;
+                hasR.removeChild(e);
             }
-		});
+            range.insertNode(range.createContextualFragment("<br/>"));
+            range.insertNode(hasR);
+            if (hasLastChild) {
+                range.setEndAfter(hasLastChild);
+                range.setStartAfter(hasLastChild);
+            }
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+        else{
+            $(this).append('<br/>' + src);
+        }
+    },
+    pasteHandler: function() {
+        var _this = this;
+        $(this).on("paste", function() {
+            /*var content = $(this).html();
+             valiHTML = _this._opt.validHtml;
+             content = content.replace(/_moz_dirty=""/gi, "").replace(/\[/g, "[[-").replace(/\]/g, "-]]").replace(/<\/ ?tr[^>]*>/gi, "[br]").replace(/<\/ ?td[^>]*>/gi, "&nbsp;&nbsp;").replace(/<(ul|dl|ol)[^>]*>/gi, "[br]").replace(/<(li|dd)[^>]*>/gi, "[br]").replace(/<p [^>]*>/gi, "[br]").replace(new RegExp("<(/?(?:" + valiHTML.join("|") + ")[^>]*)>", "gi"), "[$1]").replace(new RegExp('<span([^>]*class="?at"?[^>]*)>', "gi"), "[span$1]").replace(/<[^>]*>/g, "").replace(/\[\[\-/g, "[").replace(/\-\]\]/g, "]").replace(new RegExp("\\[(/?(?:" + valiHTML.join("|") + "|img|span)[^\\]]*)\\]", "gi"), "<$1>");
+             if (!/firefox/.test(navigator.userAgent.toLowerCase())) {
+             content = content.replace(/\r?\n/gi, "<br>");
+             }
+             $(this).html(content);*/
+        });
+    },
+    placeholderHandler: function() {
+        var _this = this;
+        $(this).on('click', function(){
+                _this.focus();
+            })
+            .on('focus', function() {
+                window.haloEditorSelection = null;
+                _this.startBuffer.apply(_this,[]);
+                if($.trim($(this).html()) === _this._opt.placeholder) {
+                    $(this).html('');
+                }
+            })
+            .on('blur', function() {
+                _this.stopBuffer.apply(_this,[]);
+                if(!$(this).html()) {
+                    $(this).html(_this._opt.placeholder);
 
-		if(!$.trim($(this).html())) {
-			$(this).html(_this._opt.placeholder);
-		}
-	},
-	getValue: function() {
-		return $(this).html();
-	},
-	setValue: function(str) {
-		$(this).html(str);
+                    if(_this._opt.hook){
+                        $(_this._opt.hook).val('');
+                    }
+                }
+                else{
+                    if(_this._opt.hook){
+                        $(_this._opt.hook).val($(this).html());
+                    }
+                }
+            });
+
+        if(!$.trim($(this).html())) {
+            $(this).html(_this._opt.placeholder);
+        }
+    },
+    getValue: function() {
+        return $(this).html();
+    },
+    setValue: function(str) {
+        $(this).html(str);
 
         //deal with hook textarea or input hidden
         if(this._opt.hook){
-           $(this._opt.hook).val(str);
+            $(this._opt.hook).val(str);
         }
-	},
+    },
     startBuffer:function () {
         console.log('start buffer ', this.haloEditorBufferring);
         window.haloEditorBufferring = true;
@@ -406,7 +412,7 @@ $.fn.extend({
 
             if (curNode.textContent == anchorNode.textContent
                 || curNode.textContent == focusNode.textContent
-            || $(curNode).has(anchorNode).length > 0 || $(curNode).has(focusNode).length > 0) {
+                || $(curNode).has(anchorNode).length > 0 || $(curNode).has(focusNode).length > 0) {
                 if (isStart) {
                     isEnd = true;
                     if($(curNode).has(focusNode).length > 0 && curNode.textContent != focusNode.textContent){
